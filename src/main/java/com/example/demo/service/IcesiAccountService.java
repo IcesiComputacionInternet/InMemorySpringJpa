@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.springframework.stereotype.Service;
 
@@ -33,33 +34,27 @@ public class IcesiAccountService {
         return icesiAccountRepository.save(icesiAccount);
     }
 
-    public String generateAccountNumber() {
-        StringBuilder stringBuilder = new StringBuilder();
-        Random random = new Random();
-    
-        // Generate the first 3 digits
-        for (int i = 0; i < 3; i++) {
-            int generatedRandom = random.nextInt(10); // Generate a random digit between 0 and 9
-            stringBuilder.append(generatedRandom);
+    private static String generateAccountNumber() {
+        // Use a Supplier lambda function to generate random digits
+        Supplier<Integer> digitSupplier = () -> new Random().nextInt(10);
+
+        // Use StringBuilder to build the account number
+        StringBuilder accountNumberBuilder = new StringBuilder();
+        accountNumberBuilder.append(generateDigits(digitSupplier, 3));
+        accountNumberBuilder.append("-");
+        accountNumberBuilder.append(generateDigits(digitSupplier, 6));
+        accountNumberBuilder.append("-");
+        accountNumberBuilder.append(generateDigits(digitSupplier, 2));
+
+        return accountNumberBuilder.toString();
+    }
+
+    private static String generateDigits(Supplier<Integer> digitSupplier, int count) {
+        StringBuilder digitsBuilder = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            digitsBuilder.append(digitSupplier.get());
         }
-    
-        stringBuilder.append("-");
-    
-        // Generate the next 6 digits
-        for (int i = 0; i < 6; i++) {
-            int generatedRandom = random.nextInt(10); // Generate a random digit between 0 and 9
-            stringBuilder.append(generatedRandom);
-        }
-    
-        stringBuilder.append("-");
-    
-        // Generate the last 2 digits
-        for (int i = 0; i < 2; i++) {
-            int generatedRandom = random.nextInt(10); // Generate a random digit between 0 and 9
-            stringBuilder.append(generatedRandom);
-        }
-    
-        return stringBuilder.toString();
+        return digitsBuilder.toString();
     }
 
     public void enableAccount(IcesiAccountCreateDTO account) {
